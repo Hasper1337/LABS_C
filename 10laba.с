@@ -1,0 +1,102 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+
+int** createMatrix(int rows, int cols) {// Функция для выделения памяти под двумерный массив
+    int **matrix = (int **)malloc(rows * sizeof(int *));
+    if (matrix == NULL) {
+        fprintf(stderr, "Ошибка выделения памяти для строк\n");
+        exit(1);
+    }
+
+    for (int i = 0; i < rows; i++) {
+        matrix[i] = (int *)malloc(cols * sizeof(int));
+        if (matrix[i] == NULL) {
+            fprintf(stderr, "Ошибка выделения памяти для столбцов\n");
+            exit(1);
+        }
+    }
+
+    return matrix;
+}
+
+void freeMatrix(int **matrix, int rows) {// Функция для освобождения памяти, выделенной под двумерный массив
+    for (int i = 0; i < rows; i++) {
+        free(matrix[i]);
+    }
+    free(matrix);
+}
+
+void fillMatrix(int **matrix, int rows, int cols) {// Функция для заполнения массива случайными числами
+    srand(time(NULL));
+
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            matrix[i][j] = rand() % 101-50;
+        }
+    }
+}
+
+void printMatrix(int **matrix, int rows, int cols) {// Функция для вывода массива на экран
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            printf("%d\t", matrix[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+void findMinMax(int **matrix, int rows, int cols) {// Функция для нахождения строк и столбцов с минимальной и максимальной суммой
+    int minRow = 0;
+    int maxRow = 0;
+    int minCol = 0;
+    int maxCol = 0;
+
+    for (int i = 0; i < cols; i++) {// Инициализация начальных значений минимальной и максимальной сумм
+        minCol += matrix[0][i];
+        maxCol += matrix[0][i];
+    }
+
+    for (int i = 1; i < rows; i++) {
+        int currentRowSum = 0;
+        int currentColSum = 0;
+        
+        for (int j = 0; j < cols; j++) {// Вычисление суммы элементов в текущей строке и столбце
+            currentRowSum += matrix[i][j];
+            currentColSum += matrix[j][i];
+        }
+        
+        if (currentRowSum < minRow) {// Поиск минимальной и максимальной суммы по строкам
+            minRow = currentRowSum;
+        } else if (currentRowSum > maxRow) {
+            maxRow = currentRowSum;
+        }
+        
+        if (currentColSum < minCol) {// Поиск минимальной и максимальной суммы по столбцам
+            minCol = currentColSum;
+        } else if (currentColSum > maxCol) {
+            maxCol = currentColSum;
+        }
+    }
+    printf("Минимальная сумма по строкам: %d\n", minRow);
+    printf("Максимальная сумма по строкам: %d\n", maxRow);
+    printf("Минимальная сумма по столбцам: %d\n", minCol);
+    printf("Максимальная сумма по столбцам: %d\n", maxCol);
+}
+
+int main() {
+    int rows, cols;
+    printf("Введите количество строк: ");
+    scanf("%d", &rows);
+    printf("Введите количество столбцов: ");
+    scanf("%d", &cols);
+    int **matrix = createMatrix(rows, cols);
+    fillMatrix(matrix, rows, cols);
+    printf("Исходный массив:\n");
+    printMatrix(matrix, rows, cols);
+    findMinMax(matrix, rows, cols);// Нахождение строк и столбцов с минимальной и максимальной суммой
+    freeMatrix(matrix, rows);// Освобождение выделенной памяти
+
+    return 0;
+}
